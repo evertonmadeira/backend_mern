@@ -35,35 +35,23 @@ router.route("/register").post(async (req, res) => {
   }
 });
 
-// router.route("/sessions").post(async (req, res) => {
-//   const { email, password } = req.body;
-
-//   try {
-//     const admin = await Admin.findOne({ email })
-//       .where("email", email)
-//       .select("name");
-
-//     if(!admin) {
-//       return res.status(400).send({ Error: "Usuário não encontrado" });
-//     }
-//   } catch (error) {
-//     res.status(400).send({error});
-//   }
-// });
-
 router.route("/authenticate").post(async (req, res) => {
-  const { adminEmail, password } = req.body;
+  const { name, adminEmail, password } = req.body;
+  try {
+    const admin = await Admin.findOne({ adminEmail }).select("+password");
 
-  const admin = await Admin.findOne({ adminEmail }).select("+password");
+    if (!admin)
+      return res.status(400).send({ Error: "Usuário não encontrado" });
 
-  if (!admin) return res.status(400).send({ Error: "Usuário não encontrado" });
+    if (!(await bcrypt.compare(password, admin.password)))
+      return res.status(400).send({ Error: "Senha incorreta" });
 
-  if (!(await bcrypt.compare(password, admin.password)))
-    return res.status(400).send({ Error: "Senha incorreta" });
+    admin.password = undefined;
 
-  admin.password = undefined;
-
-  return res.send({ admin, token: generateToken({ id: admin.id }) });
+    return res.send({ admin, token: generateToken({ id: admin.id }) });
+  } catch (error) {
+    res.status(400).send({ error });
+  }
 });
 
 router.route("/:id").get((req, res) => {

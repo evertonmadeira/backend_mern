@@ -47,10 +47,10 @@ router.route('/authenticate').post(async (req, res) => {
   if (!user)
     return res.status(400).send({ Error: 'Usuário não encontrado' });
 
-  if (!await bcrypt.compare(senha, user.senha))
+  if (!(await bcrypt.compare(senha, user.senha)))
     return res.status(400).send({ Error: 'Senha incorreta' });
 
-  user.password = undefined;
+  user.senha = undefined;
 
   return res.send({ user, token: generateToken({ id: user.id }) });
 
