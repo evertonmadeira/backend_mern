@@ -1,13 +1,15 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const bcrypt = require("bcrypt");
 
 const TableSchema = new Schema({
-  num:  Number,
+  num: Number,
   estado: String,
   qrcode: String,
-},{
+}, {
   timestamp: true,
 });
+
 
 const Table = mongoose.model('Table', TableSchema);
 module.exports = Table;

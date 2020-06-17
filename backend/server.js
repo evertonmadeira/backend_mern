@@ -11,7 +11,7 @@ const port = process.env.port || 5000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(
   "/files",
@@ -28,17 +28,23 @@ connection.once('open', () => {
 
 //Configurando Rotas
 const productRouter = require("./routes/product");
+const categoryRouter = require("./routes/category");
 const userRouter = require("./routes/user");
 const tableRouter = require("./routes/table");
 const imageRouter = require("./routes/image");
+const orderRouter = require("./routes/order");
+const registerRouter = require("./routes/register");
 const userControllerRouter = require("./routes/userController");
 const adminControllerRouter = require("./routes/adminController");
 const adminRouter = require("./routes/admin");
 
 app.use('/product', productRouter);
+app.use('/category', categoryRouter);
 app.use('/product-img', imageRouter);
 app.use('/user', userRouter);
 app.use('/table', tableRouter);
+app.use('/order', orderRouter);
+app.use('/register', registerRouter);
 app.use('/usercontrol', userControllerRouter);
 app.use('/admincontrol', adminControllerRouter);
 app.use('/admin', adminRouter);

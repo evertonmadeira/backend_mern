@@ -23,6 +23,7 @@ module.exports = (req, res, next) => {
 
     req.userId = decoded.id;
     req.adminId = decoded.id;
+    req.tableId = decoded.id;
     return next();
   })
 }

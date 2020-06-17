@@ -8,14 +8,14 @@ const AdminSchema = new Schema({
   password: { type: String, required: true, select: false },
 }, {
   timestamp: true,
-})
+});
 
 AdminSchema.pre('save', async function (next) {
   const hash = await bcrypt.hash(this.password, 10);
   this.password = hash;
 
   next();
-})
+});
 
 const Admin = mongoose.model('Admin', AdminSchema)
 module.exports = Admin;

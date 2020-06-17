@@ -11,6 +11,20 @@ router.route('/').get((req, res) => {
     .catch((err) => res.status(400).json('Problema ao acessar os dados:' + err));
 });
 
+router.route('/:categoria').get((req, res) => {
+
+  Product.find({ categoria: req.params.categoria })
+    .then(products => res.json(products))
+    .catch((err) => res.status(400).json('Problema ao acessar os dados:' + err));
+});
+
+router.route('/count/:categoria').get((req, res) => {
+
+  Product.find({ categoria: req.params.categoria }).count()
+    .then(products => res.json(products))
+    .catch((err) => res.status(400).json('Problema ao acessar os dados:' + err));
+});
+
 router.route('/add').post(multer(multerConfig).single("file"), async (req, res) => {
   const nome = req.body.nome;
   const descricao = req.body.descricao;
@@ -18,7 +32,7 @@ router.route('/add').post(multer(multerConfig).single("file"), async (req, res) 
   const preco = Number(req.body.preco);
 
   const { originalname: name, size, key, location: url = "" } = req.file;
-  
+
   const img = {
     name,
     size,
