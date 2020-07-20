@@ -13,7 +13,7 @@
     "filesize": "^6.1.0",
     "jquery": "^3.4.1",
     "jsonwebtoken": "^8.5.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "mongoose": "^5.8.9",
     "morgan": "^1.9.1",
     "multer": "^1.4.2",
