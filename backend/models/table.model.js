@@ -5,9 +5,9 @@ const bcrypt = require("bcrypt");
 const TableSchema = new Schema({
   num: Number,
   estado: String,
-  qrcode: String,
-}, {
-  timestamp: true,
+  register_id: { type: Schema.Types.ObjectId, ref: 'Register' },
+  registered_client: String,
+  registered_time: Date,
 });
 
 

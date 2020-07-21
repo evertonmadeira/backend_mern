@@ -7,7 +7,7 @@ let Product = require("../models/product.model");
 //Requisições ao DB
 router.route('/').get((req, res) => {
   Product.find()
-    .then(products => res.json(products))
+    .then(products => res.json([products, products.length]))
     .catch((err) => res.status(400).json('Problema ao acessar os dados:' + err));
 });
 

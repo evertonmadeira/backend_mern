@@ -12,54 +12,64 @@ function generateToken(params = {}) {
   });
 }
 
-//Requisições ao DB
-router.route('/').get((req, res) => {
+// Requisições ao DB
+// Listagem das mesas utilizando o método GET
+router.route('/').get((request, response) => {
+  // Método find para buscar as mesas cadastradas no banco de dados
   Table.find()
-    .then(tables => res.json(tables))
-    .catch((err) => res.status(400).json('Erro:' + err));
+    // Função retornando as mesas encontradas e quantidade destas
+    .then(tables => response.json([tables, tables.length]))
+    .catch((err) => response.status(400).json('Erro:' + err));
 });
 
-router.route('/add').post((req, res) => {
-  const num = Number(req.body.num);
-  const estado = req.body.estado;
-  const qrcode = req.body.qrcode;
+// Operação de cadastro de mesas utilizando método POST
+router.route('/add').post((request, response) => {
+  // Variáveis que assumem os valores do corpo da requisição enviadas pelo usuário
+  const num = Number(request.body.num);
+  const estado = request.body.estado;
 
+  // Instancia do model Table
   const newTable = new Table({
     num,
     estado,
-    qrcode
   });
 
+  // Método save para salvar os dados no banco
   newTable.save()
-    .then(() => res.json('Mesa adicionada com sucesso!'))
-    .catch((err) => res.status(400).json('Erro:' + err));
+    .then(() => response.json('Mesa adicionada com sucesso!'))
+    .catch((err) => response.status(400).json('Erro:' + err));
 });
 
-router.route('/:id').get((req, res) => {
-  Table.findById(req.params.id)
-    .then(table => res.json(table))
-    .catch((err) => res.status(400).json('Erro:' + err));
+// Método para exclusão de mesas utilizando método DELETE
+router.route('/delete/:id').delete((request, response) => {
+  // A mesa é selecionada de acordo com seu identificador (id) e então excluída
+  Table.findByIdAndDelete(request.params.id)
+    // O retorno é apenas uma messagem, afinal, não faz sentido retornar a mesa excluída
+    .then(() => response.json('Mesa removida!'))
+    .catch((err) => response.status(400).json('Erro:' + err));
 });
 
-router.route('/delete/:id').delete((req, res) => {
-  Table.findByIdAndDelete(req.params.id)
-    .then(() => res.json('Mesa removida!'))
-    .catch((err) => res.status(400).json('Erro:' + err));
-});
-
-router.route('/update/:id').post((req, res) => {
-  Table.findById(req.params.id)
+// Edição dos dados da mesa
+// Como na operação de exclusão, a edição faz uma busca pelo identificador da mesa
+router.route('/update/:id').post((request, response) => {
+  Table.findById(request.params.id)
+    // Primeiro recebe os novos dados do corpo da requisição
     .then(table => {
-      table.num = req.body.num;
-      table.estado = req.body.estado;
-      table.qrcode = req.body.qrcode;
+      table.num = request.body.num;
+      table.estado = request.body.estado;
 
+      // Depois salva os novos dados de acordo com a mesa selecionada (pelo id)
       table.save()
-        .then(() => res.json('Dados alterados!'))
-        .catch((err) => res.status(400).json('Erro:' + err));
+        .then(() => response.json('Dados alterados!'))
+        .catch((err) => response.status(400).json('Erro:' + err));
     })
-    .catch((err) => res.status(400).json('Erro:' + err));
+    .catch((err) => response.status(400).json('Erro:' + err));
 });
 
+router.route('/:id').get((request, response) => {
+  Table.findById(request.params.id)
+    .then(table => response.json(table))
+    .catch((err) => response.status(400).json('Erro:' + err));
+});
 
 module.exports = router

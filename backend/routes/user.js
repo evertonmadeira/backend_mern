@@ -14,7 +14,7 @@ function generateToken(params = {}) {
 //Requisições ao DB
 router.route('/').get((req, res) => {
   User.find()
-    .then(users => res.json(users))
+    .then(users => res.json([users, users.length]))
     .catch((err) => res.status(400).json('Erro:' + err));
 });
 
