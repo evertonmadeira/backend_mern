@@ -8,6 +8,9 @@ const TableSchema = new Schema({
   register_id: { type: Schema.Types.ObjectId, ref: 'Register' },
   registered_client: String,
   registered_time: Date,
+  is_paid: { type: Boolean, default: false },
+  flag_to_vacancy: { type: Boolean, default: false },
+  total: Number
 });
 
 

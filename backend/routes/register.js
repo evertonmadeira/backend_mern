@@ -29,6 +29,7 @@ router.route("/:name/:id").post(async (req, res) => {
       const newRegister = new Register({
         occupied_table: table.num,
         client_name: name,
+        is_paid: false,
         occupation_time: new Date()
       });
 
@@ -66,8 +67,10 @@ router.route('/:id').put(async (req, res) => {
       register.vacancy_time = new Date();
 
       table.estado = "Livre";
+      table.register_id = null;
       table.registered_client = null;
       table.registered_time = null;
+      table.flag_to_vacancy = false;
 
       await register.save();
       await table.save();
@@ -77,8 +80,26 @@ router.route('/:id').put(async (req, res) => {
   } catch (error) {
     return res.json('Problemas ao desocupar a mesa:' + error);
   }
+});
 
+router.route('/payment/:id').put(async (req, res) => {
+  const { id } = req.params;
 
+  try {
+    const register = await Register.findById(id);
+    const table = await Table.findOne({ num: register.occupied_table });
+
+    if (register && table) {
+
+      table.estado = "Pagar";
+
+      await table.save();
+
+      return res.json(`O cliente da mesa ${table.num} deseja realizar o pagamento!`)
+    }
+  } catch (error) {
+    return res.json('Problemas ao desocupar a mesa:' + error);
+  }
 });
 
 module.exports = router

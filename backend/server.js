@@ -2,6 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+// const autoIncrement = require("mongoose-auto-increment")
+
 const morgan = require("morgan");
 const path = require("path");
 
@@ -20,8 +22,15 @@ app.use(
 
 //Conectando MongoDB
 const uri = process.env.COMPASS_URI;
-mongoose.connect(uri, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true });
+
+mongoose.connect(uri, {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useUnifiedTopology: true
+});
+
 const connection = mongoose.connection;
+// autoIncrement.initialize(connection);
 connection.once('open', () => {
   console.log('MongoDB conectado...')
 });

@@ -1,7 +1,7 @@
 const router = require('express').Router();
 
 let Order = require("../models/order.model");
-
+let Table = require("../models/table.model");
 
 router.route('/').get((req, res) => {
   Order.find()
@@ -63,6 +63,7 @@ router.route('/:number').get(async (req, res) => {
     return res.json(test);
 
   } catch (error) {
+    console.log(error)
     return res.status(400).json('Erro: ' + error);
   }
 
@@ -70,38 +71,54 @@ router.route('/:number').get(async (req, res) => {
 
 router.route('/').post(async (req, res) => {
   try {
+
     const data = req.body;
 
-    const validation = await Order.find({ mesa: data.mesa }, (order) => { return order; });
+    let count = 0;
 
-    if (validation.length == 0) {
-      data.pedidos.map(pedido => {
-        data.total += pedido.preco * pedido.quantity
-      });
+    const arrayData = await Order.find({ mesa: data.mesa });
 
-      const newOrder = new Order({
-        mesa: data.mesa,
-        status: data.status,
-        pedidos: data.pedidos,
-        total: data.total
-      });
+    const findTable = await Table.findOne({ num: data.mesa });
 
-      await newOrder.save()
+    const showAllOrders = arrayData.map(order => {
+      return order;
+    })
 
-      return res.json('Pedido realizado!');
+    data.pedidos.map(pedido => {
+      data.subtotal += pedido.preco * pedido.quantity;
+    });
 
-    } else if (validation.length != 0 && validation[0].status === 'Aberto') {
-      return res.json('Pedido aberto');
+    const totalGeral = arrayData.reduce((acc, order) => {
+      acc += order.subtotal;
 
-    } else if (validation.length != 0 && validation[0].status === 'Em produção') {
-      return res.json('Pedido aberto');
+      return acc
+    }, data.subtotal);
 
-    } else if (validation.length != 0 && validation[0].status === 'Finalizado') {
-      console.log('Tem pedido finalizado');
-      return res.json('Pedido finalizado');
+    if (arrayData.length == 0) {
+      count = 1;
+    } else {
+      count = Number(arrayData[arrayData.length - 1].order_number + 1);
+    };
 
-    }
+    const newOrder = new Order({
+      mesa: data.mesa,
+      status: data.status,
+      pedidos: data.pedidos,
+      order_number: count,
+      subtotal: data.subtotal,
+    });
+
+    findTable.total = totalGeral;
+    findTable.is_paid = false;
+
+    await findTable.save();
+
+    await newOrder.save();
+
+    return res.json('Pedido realizado!');
+
   } catch (error) {
+    console.log(error)
     return res.status(400).json('Erro: ' + error);
   }
 });
@@ -118,10 +135,26 @@ router.route('/:id').put((req, res) => {
     .catch((err) => res.status(400).json('Erro:' + err));
 });
 
-router.route('/:number/:id').delete((req, res) => {
-  Order.findByIdAndDelete(req.params.id)
-    .then(() => res.json('Pedido excluído!'))
-    .catch((err) => res.status(400).json('Erro: ' + err));
+router.route('/:number/:id').delete(async (req, res) => {
+  try {
+    const findTable = await Table.findOne({ num: req.params.number });
+
+    const findOrder = await Order.findById(req.params.id);
+
+    // if (findTable && findOrder && findTable.total > 0) {
+    //   findTable.total = findTable.total - findOrder.subtotal;
+    // } else {
+    //   findTable.total = findTable.total;
+    // }
+
+    // await findTable.save();
+
+    await Order.findByIdAndDelete(findOrder.id);
+
+    res.json('Pedido excluído!');
+  } catch (error) {
+    return res.status(400).json('Erro: ' + error);
+  }
 });
 
 module.exports = router
